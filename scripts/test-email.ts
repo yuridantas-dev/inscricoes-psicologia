@@ -8,11 +8,11 @@ async function main() {
   try {
     await sendRegistrationEmail({
       fullName: "Teste Sistema Inscrições",
-      email: "teste@exemplo.com",
-      phone: "(61) 99999-9999",
-      identifier: "RA-TESTE",
-      role: "student",
-      courseTopic: "Psicologia Clínica",
+      cpf: "123.456.789-00",
+      birthDate: "2000-05-15",
+      institutionalEmail: "teste@faculdadecci.com.br",
+      course: "Psicologia",
+      semester: "3º semestre",
     });
     console.log("\nSucesso! Confira a caixa de entrada (e spam).");
   } catch (e) {

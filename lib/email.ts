@@ -1,20 +1,13 @@
 import nodemailer from "nodemailer";
 import { Resend } from "resend";
 
-const ROLE_LABELS: Record<string, string> = {
-  student: "Estudante de Psicologia",
-  professional: "Profissional da Saúde/Psicólogo",
-  external: "Comunidade Externa / Outros",
-  faculty: "Professor / Docente",
-};
-
 export interface RegistrationData {
   fullName: string;
-  email: string;
-  phone: string;
-  identifier: string;
-  role: string;
-  courseTopic?: string;
+  cpf: string;
+  birthDate: string;
+  institutionalEmail: string;
+  course: string;
+  semester: string;
 }
 
 function escapeHtml(text: string): string {
@@ -25,17 +18,22 @@ function escapeHtml(text: string): string {
     .replace(/"/g, "&quot;");
 }
 
+function formatBirthDatePtBr(isoDate: string): string {
+  const [y, m, d] = isoDate.split("-");
+  if (!y || !m || !d) return isoDate;
+  return `${d}/${m}/${y}`;
+}
+
 function buildHtml(data: RegistrationData): string {
-  const roleLabel = ROLE_LABELS[data.role] || data.role;
   return `
-    <h2>Nova inscrição — Turma de Psicologia</h2>
+    <h2>Nova inscrição — Faculdade CCI</h2>
     <table style="border-collapse:collapse;font-family:sans-serif;font-size:14px">
-      <tr><td style="padding:6px 12px 6px 0;font-weight:bold">Nome</td><td>${escapeHtml(data.fullName)}</td></tr>
-      <tr><td style="padding:6px 12px 6px 0;font-weight:bold">E-mail</td><td>${escapeHtml(data.email)}</td></tr>
-      <tr><td style="padding:6px 12px 6px 0;font-weight:bold">Telefone</td><td>${escapeHtml(data.phone)}</td></tr>
-      <tr><td style="padding:6px 12px 6px 0;font-weight:bold">Matrícula/CPF</td><td>${escapeHtml(data.identifier)}</td></tr>
-      <tr><td style="padding:6px 12px 6px 0;font-weight:bold">Vínculo</td><td>${escapeHtml(roleLabel)}</td></tr>
-      <tr><td style="padding:6px 12px 6px 0;font-weight:bold">Área de interesse</td><td>${escapeHtml(data.courseTopic || "—")}</td></tr>
+      <tr><td style="padding:6px 12px 6px 0;font-weight:bold">Nome completo</td><td>${escapeHtml(data.fullName)}</td></tr>
+      <tr><td style="padding:6px 12px 6px 0;font-weight:bold">CPF</td><td>${escapeHtml(data.cpf)}</td></tr>
+      <tr><td style="padding:6px 12px 6px 0;font-weight:bold">Data de nascimento</td><td>${escapeHtml(formatBirthDatePtBr(data.birthDate))}</td></tr>
+      <tr><td style="padding:6px 12px 6px 0;font-weight:bold">E-mail institucional</td><td>${escapeHtml(data.institutionalEmail)}</td></tr>
+      <tr><td style="padding:6px 12px 6px 0;font-weight:bold">Curso</td><td>${escapeHtml(data.course)}</td></tr>
+      <tr><td style="padding:6px 12px 6px 0;font-weight:bold">Semestre</td><td>${escapeHtml(data.semester)}</td></tr>
     </table>
     <p style="color:#64748b;font-size:12px;margin-top:16px">Enviado em ${new Date().toLocaleString("pt-BR")}</p>
   `;
@@ -44,11 +42,11 @@ function buildHtml(data: RegistrationData): string {
 function buildText(data: RegistrationData): string {
   return [
     `Nova inscrição — ${data.fullName}`,
-    `E-mail: ${data.email}`,
-    `Telefone: ${data.phone}`,
-    `Matrícula/CPF: ${data.identifier}`,
-    `Vínculo: ${ROLE_LABELS[data.role] || data.role}`,
-    `Área: ${data.courseTopic || "—"}`,
+    `CPF: ${data.cpf}`,
+    `Data de nascimento: ${formatBirthDatePtBr(data.birthDate)}`,
+    `E-mail institucional: ${data.institutionalEmail}`,
+    `Curso: ${data.course}`,
+    `Semestre: ${data.semester}`,
   ].join("\n");
 }
 
@@ -62,12 +60,12 @@ async function sendViaResend(
 
   const resend = new Resend(apiKey);
   const from =
-    process.env.RESEND_FROM || "Inscrições Psicologia <onboarding@resend.dev>";
+    process.env.RESEND_FROM || "Inscrições CCI <onboarding@resend.dev>";
 
   const { error } = await resend.emails.send({
     from,
     to: [adminEmail],
-    replyTo: data.email,
+    replyTo: data.institutionalEmail,
     subject,
     html: buildHtml(data),
     text: buildText(data),
@@ -101,9 +99,9 @@ async function sendViaSmtp(
   const from = process.env.SMTP_FROM || user;
 
   await transporter.sendMail({
-    from: `"Inscrições Psicologia" <${from}>`,
+    from: `"Inscrições CCI" <${from}>`,
     to: adminEmail,
-    replyTo: data.email,
+    replyTo: data.institutionalEmail,
     subject,
     html: buildHtml(data),
     text: buildText(data),
@@ -124,7 +122,7 @@ export async function sendRegistrationEmail(data: RegistrationData): Promise<voi
     throw new Error("ADMIN_EMAIL não está configurado no servidor.");
   }
 
-  const subject = `Nova inscrição: ${data.fullName}`;
+  const subject = `Nova inscrição: ${data.fullName} — ${data.course}`;
   const provider = getEmailProvider();
 
   if (provider === "resend") {

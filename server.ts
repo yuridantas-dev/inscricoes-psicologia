@@ -4,14 +4,41 @@ import path from "path";
 import { createServer as createViteServer } from "vite";
 import { getEmailProvider, sendRegistrationEmail } from "./lib/email.js";
 
+const INSTITUTIONAL_DOMAIN = "@faculdadecci.com.br";
+
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 
 app.use(express.json());
 
+function isValidCpf(cpf: string): boolean {
+  return cpf.replace(/\D/g, "").length === 11;
+}
+
+function isValidInstitutionalEmail(email: string): boolean {
+  const n = email.trim().toLowerCase();
+  return n.includes("@") && n.endsWith(INSTITUTIONAL_DOMAIN);
+}
+
+function isValidBirthDate(dateStr: string): boolean {
+  if (!dateStr) return false;
+  const date = new Date(dateStr + "T12:00:00");
+  if (Number.isNaN(date.getTime())) return false;
+  const today = new Date();
+  today.setHours(12, 0, 0, 0);
+  return date <= today;
+}
+
 app.post("/api/inscricao", async (req, res) => {
   try {
-    const { fullName, email, phone, identifier, role, courseTopic } = req.body;
+    const {
+      fullName,
+      cpf,
+      birthDate,
+      institutionalEmail,
+      course,
+      semester,
+    } = req.body;
 
     if (!fullName?.trim()) {
       return res.status(400).json({ error: "Nome completo é obrigatório." });
@@ -19,23 +46,31 @@ app.post("/api/inscricao", async (req, res) => {
     if (fullName.trim().split(/\s+/).length < 2) {
       return res.status(400).json({ error: "Informe nome e sobrenome completos." });
     }
-    if (!email?.trim() || !email.includes("@")) {
-      return res.status(400).json({ error: "E-mail inválido." });
+    if (!cpf?.trim() || !isValidCpf(cpf)) {
+      return res.status(400).json({ error: "CPF inválido. Informe os 11 dígitos." });
     }
-    if (!phone?.trim() || phone.replace(/\D/g, "").length < 10) {
-      return res.status(400).json({ error: "Telefone/WhatsApp inválido." });
+    if (!birthDate || !isValidBirthDate(birthDate)) {
+      return res.status(400).json({ error: "Data de nascimento inválida." });
     }
-    if (!identifier?.trim()) {
-      return res.status(400).json({ error: "Matrícula ou CPF é obrigatório." });
+    if (!institutionalEmail?.trim() || !isValidInstitutionalEmail(institutionalEmail)) {
+      return res.status(400).json({
+        error: `Use seu e-mail institucional (${INSTITUTIONAL_DOMAIN}).`,
+      });
+    }
+    if (!course?.trim()) {
+      return res.status(400).json({ error: "Selecione o curso." });
+    }
+    if (!semester?.trim()) {
+      return res.status(400).json({ error: "Selecione o semestre." });
     }
 
     const data = {
       fullName: fullName.trim(),
-      email: email.trim().toLowerCase(),
-      phone: phone.trim(),
-      identifier: identifier.trim(),
-      role: role || "student",
-      courseTopic: (courseTopic || "").trim() || undefined,
+      cpf: cpf.trim(),
+      birthDate: birthDate.trim(),
+      institutionalEmail: institutionalEmail.trim().toLowerCase(),
+      course: course.trim(),
+      semester: semester.trim(),
     };
 
     await sendRegistrationEmail(data);
@@ -74,7 +109,6 @@ async function startServer() {
       server: { middlewareMode: true },
       appType: "spa",
     });
-    // Não deixa o Vite interceptar rotas da API (evita resposta vazia/HTML)
     app.use((req, res, next) => {
       if (req.path.startsWith("/api")) {
         return next();
@@ -89,7 +123,6 @@ async function startServer() {
     });
   }
 
-  // 404 JSON para rotas /api inexistentes
   app.use("/api", (_req, res) => {
     res.status(404).json({ error: "Rota da API não encontrada." });
   });

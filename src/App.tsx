@@ -78,7 +78,7 @@ export default function App() {
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-emerald-500 font-bold">✓</span>
-                    <span><strong>CPF/Matrícula:</strong> ajuda a validar sua participação junto à instituição.</span>
+                    <span><strong>CPF e e-mail institucional:</strong> devem ser os mesmos cadastrados na faculdade.</span>
                   </li>
                 </ul>
               </div>
