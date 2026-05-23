@@ -1,0 +1,15 @@
+# Deploy no Render: https://render.com → New → Blueprint
+services:
+  - type: web
+    name: inscricoes-psicologia
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
