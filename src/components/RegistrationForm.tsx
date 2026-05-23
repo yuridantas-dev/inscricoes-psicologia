@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { motion } from 'motion/react';
-import { CheckCircle, AlertCircle, User, Mail, Phone, Hash, Award, Smile } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { CheckCircle, AlertCircle, User, Mail, Phone, Hash, Award, Smile, X } from 'lucide-react';
 import { PSYCHOLOGY_SUBFIELDS, ROLE_LABELS } from '../types';
 import { parseJsonResponse } from '../lib/api';
 
@@ -16,6 +16,21 @@ export default function RegistrationForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+
+  const closeSuccessModal = () => setSuccessMsg(null);
+
+  useEffect(() => {
+    if (!successMsg) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') closeSuccessModal();
+    };
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [successMsg]);
 
   // Simple formatting for Phone (WhatsApp) (XX) XXXXX-XXXX
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -111,6 +126,71 @@ export default function RegistrationForm() {
   };
 
   return (
+    <>
+    <AnimatePresence>
+      {successMsg && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="success-modal-title"
+        >
+          <motion.button
+            type="button"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 bg-slate-900/50 backdrop-blur-[2px] cursor-pointer"
+            onClick={closeSuccessModal}
+            aria-label="Fechar"
+          />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 12 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 8 }}
+            transition={{ type: 'spring', stiffness: 380, damping: 28 }}
+            className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-100 p-6 sm:p-8 text-center"
+            id="success-modal"
+          >
+            <button
+              type="button"
+              onClick={closeSuccessModal}
+              className="absolute top-4 right-4 p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+              aria-label="Fechar"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="mx-auto w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mb-4">
+              <CheckCircle className="w-9 h-9 text-emerald-600" />
+            </div>
+
+            <h3
+              id="success-modal-title"
+              className="text-xl font-bold text-slate-800 mb-2"
+            >
+              Inscrição confirmada!
+            </h3>
+
+            <p className="text-sm text-slate-600 leading-relaxed">
+              {successMsg}
+            </p>
+            <p className="text-sm text-emerald-700 mt-2">
+              A organização foi notificada por e-mail. Você pode fechar esta página.
+            </p>
+
+            <button
+              type="button"
+              onClick={closeSuccessModal}
+              className="mt-6 w-full py-3 px-4 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-xl transition-colors cursor-pointer text-sm shadow-md shadow-brand-600/15"
+            >
+              Entendi
+            </button>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+
     <motion.div 
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
@@ -127,21 +207,6 @@ export default function RegistrationForm() {
           Por favor, preencha as informações abaixo com atenção. Seus dados serão utilizados para gerar seu <strong className="text-brand-700 font-medium">Certificado de Participação</strong>.
         </p>
       </div>
-
-      {successMsg && (
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="mb-6 p-4 bg-emerald-50 border border-emerald-100 rounded-xl text-emerald-800 flex gap-3 text-sm items-start"
-          id="success-alert"
-        >
-          <CheckCircle className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
-          <div>
-            <p className="font-semibold">{successMsg}</p>
-            <p className="text-emerald-700/95 mt-1">A organização foi notificada por e-mail. Você pode fechar esta página.</p>
-          </div>
-        </motion.div>
-      )}
 
       {errorMsg && (
         <motion.div 
@@ -310,5 +375,6 @@ export default function RegistrationForm() {
         </div>
       </form>
     </motion.div>
+    </>
   );
 }
