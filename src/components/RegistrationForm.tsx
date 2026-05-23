@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   CheckCircle, AlertCircle, User, Mail, Hash, Award, Smile, X,
-  Calendar, GraduationCap, BookOpen,
+  GraduationCap, BookOpen,
 } from 'lucide-react';
-import { CCI_COURSES, SEMESTERS } from '../types';
+import { CCI_COURSES, COURSE_OTHER, SEMESTERS } from '../types';
 import { parseJsonResponse } from '../lib/api';
 import {
   formatCpf,
@@ -15,14 +15,18 @@ import {
 } from '../lib/validation';
 
 const inputClass =
-  'w-full py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:bg-white focus:border-brand-500 focus:outline-hidden transition-all text-base shadow-2xs';
+  'w-full min-w-0 max-w-full py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:bg-white focus:border-brand-500 focus:outline-hidden transition-all text-base shadow-2xs';
+
+const dateInputClass =
+  'w-full min-w-0 max-w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:bg-white focus:border-brand-500 focus:outline-hidden transition-all text-base shadow-2xs';
 
 export default function RegistrationForm() {
   const [fullName, setFullName] = useState('');
   const [cpf, setCpf] = useState('');
   const [birthDate, setBirthDate] = useState('');
   const [institutionalEmail, setInstitutionalEmail] = useState('');
-  const [course, setCourse] = useState(CCI_COURSES[0]);
+  const [course, setCourse] = useState<string>(CCI_COURSES[0]);
+  const [otherCourse, setOtherCourse] = useState('');
   const [semester, setSemester] = useState(SEMESTERS[0]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -77,6 +81,10 @@ export default function RegistrationForm() {
       setErrorMsg('Selecione o curso.');
       return;
     }
+    if (course === COURSE_OTHER && !otherCourse.trim()) {
+      setErrorMsg('Informe o nome do seu curso.');
+      return;
+    }
     if (!semester.trim()) {
       setErrorMsg('Selecione o semestre.');
       return;
@@ -93,7 +101,7 @@ export default function RegistrationForm() {
           cpf: cpf.trim(),
           birthDate,
           institutionalEmail: institutionalEmail.trim().toLowerCase(),
-          course,
+          course: course === COURSE_OTHER ? `Outro: ${otherCourse.trim()}` : course,
           semester,
         }),
       });
@@ -113,6 +121,7 @@ export default function RegistrationForm() {
       setBirthDate('');
       setInstitutionalEmail('');
       setCourse(CCI_COURSES[0]);
+      setOtherCourse('');
       setSemester(SEMESTERS[0]);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Erro de conexão com o servidor.';
@@ -189,8 +198,8 @@ export default function RegistrationForm() {
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 sm:p-8"
-        id="registration-container"
+      className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 sm:p-8 overflow-hidden"
+      id="registration-container"
       >
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-slate-800 tracking-tight flex items-center gap-2">
@@ -240,9 +249,9 @@ export default function RegistrationForm() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
+            <div className="min-w-0">
               <label className="block text-sm font-medium text-slate-700 mb-1">CPF*</label>
-              <div className="relative">
+              <div className="relative min-w-0">
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
                   <Hash className="w-4 h-4" />
                 </span>
@@ -258,23 +267,18 @@ export default function RegistrationForm() {
               </div>
             </div>
 
-            <div>
+            <div className="min-w-0 overflow-hidden">
               <label className="block text-sm font-medium text-slate-700 mb-1">
                 Data de nascimento*
               </label>
-              <div className="relative">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
-                  <Calendar className="w-4 h-4" />
-                </span>
-                <input
-                  type="date"
-                  required
-                  max={maxBirthDate}
-                  value={birthDate}
-                  onChange={(e) => setBirthDate(e.target.value)}
-                  className={`${inputClass} pl-10 pr-4`}
-                />
-              </div>
+              <input
+                type="date"
+                required
+                max={maxBirthDate}
+                value={birthDate}
+                onChange={(e) => setBirthDate(e.target.value)}
+                className={dateInputClass}
+              />
             </div>
           </div>
 
@@ -301,16 +305,19 @@ export default function RegistrationForm() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
+            <div className="min-w-0 sm:col-span-2">
               <label className="block text-sm font-medium text-slate-700 mb-1">Curso*</label>
-              <div className="relative">
+              <div className="relative min-w-0">
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400 z-10">
                   <GraduationCap className="w-4 h-4" />
                 </span>
                 <select
                   required
                   value={course}
-                  onChange={(e) => setCourse(e.target.value)}
+                  onChange={(e) => {
+                    setCourse(e.target.value);
+                    if (e.target.value !== COURSE_OTHER) setOtherCourse('');
+                  }}
                   className={`${inputClass} pl-10 pr-4 cursor-pointer`}
                 >
                   {CCI_COURSES.map((c) => (
@@ -320,11 +327,21 @@ export default function RegistrationForm() {
                   ))}
                 </select>
               </div>
+              {course === COURSE_OTHER && (
+                <input
+                  type="text"
+                  required
+                  placeholder="Digite o nome do seu curso"
+                  value={otherCourse}
+                  onChange={(e) => setOtherCourse(e.target.value)}
+                  className={`${inputClass} mt-2`}
+                />
+              )}
             </div>
 
-            <div>
+            <div className="min-w-0 sm:col-span-2 sm:max-w-xs">
               <label className="block text-sm font-medium text-slate-700 mb-1">Semestre*</label>
-              <div className="relative">
+              <div className="relative min-w-0">
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400 z-10">
                   <BookOpen className="w-4 h-4" />
                 </span>

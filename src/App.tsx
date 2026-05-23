@@ -1,5 +1,5 @@
 import {
-  Award, ShieldCheck, HeartPulse, Sparkles, HelpCircle, Mail
+  Award, ShieldCheck, HelpCircle, Mail
 } from 'lucide-react';
 import RegistrationForm from './components/RegistrationForm';
 
@@ -7,9 +7,8 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#f9fafb] flex flex-col selection:bg-brand-100 selection:text-brand-900 leading-relaxed font-sans" id="app-root">
 
-      <div className="bg-brand-900 text-brand-100 text-xs py-2 px-4 shadow-inner text-center font-medium font-sans flex items-center justify-center gap-1.5">
-        <Sparkles className="w-3.5 h-3.5 text-brand-200 shrink-0" />
-        <span>Inscrições abertas para a Turma de Psicologia 2026</span>
+      <div className="bg-brand-900 text-brand-100 text-xs sm:text-sm py-2.5 px-4 shadow-inner text-center font-medium font-sans">
+        <span>Seja bem-vindo(a)! Preencha o formulário para solicitar seu certificado de participação.</span>
       </div>
 
       <div className="max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-10 flex-grow">
@@ -21,14 +20,9 @@ export default function App() {
             className="h-16 sm:h-20 w-auto mx-auto mb-5 object-contain"
           />
 
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-brand-50 border border-brand-100/80 rounded-full text-brand-700 text-xs font-semibold mb-3 tracking-wide uppercase">
-            <HeartPulse className="w-3.5 h-3.5" />
-            <span>Turma de Psicologia & Saúde</span>
-          </div>
-
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-800 tracking-tight leading-tight">
-            Portal de Inscrições <br />
-            <span className="text-brand-600 bg-linear-to-r from-brand-600 to-brand-700 bg-clip-text text-transparent">Psicologia Aplicada</span>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-800 tracking-tight leading-tight">
+            Portal Psicologia{' '}
+            <span className="text-brand-600">— Certificado</span>
           </h1>
 
           <p className="text-slate-500 text-sm sm:text-base mt-3 max-w-xl mx-auto">
@@ -117,6 +111,9 @@ export default function App() {
           className="h-8 w-auto mx-auto mb-2 opacity-70 object-contain"
         />
         <p>© {new Date().getFullYear()} Faculdade CCI — Turma de Psicologia. Todos os direitos reservados.</p>
+        <p className="mt-2 text-[11px] text-slate-400">
+          Desenvolvido por Yuri — Análise e Desenvolvimento de Sistemas, 3º semestre
+        </p>
       </footer>
 
     </div>

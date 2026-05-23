@@ -82,14 +82,27 @@ app.post("/api/inscricao", async (req, res) => {
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     console.error("POST /api/inscricao:", e);
-    const authHint =
+
+    if (
       msg.includes("BadCredentials") ||
       msg.includes("EAUTH") ||
-      msg.includes("Authentication");
+      msg.includes("Authentication")
+    ) {
+      return res.status(500).json({
+        error:
+          "E-mail não configurado no servidor. O organizador deve adicionar RESEND_API_KEY no .env ou no Render.",
+      });
+    }
+
+    if (msg.includes("testing emails to your own") || msg.includes("verify a domain")) {
+      return res.status(500).json({
+        error:
+          "Envio de e-mail bloqueado pelo Resend: a chave API só pode notificar o e-mail da conta que criou o Resend. Crie uma conta em resend.com com ana3718825@faculdadecci.com.br, gere uma nova API Key e atualize no Render (Environment).",
+      });
+    }
+
     res.status(500).json({
-      error: authHint
-        ? "E-mail não configurado no servidor. O organizador deve adicionar RESEND_API_KEY no .env (veja README)."
-        : "Não foi possível enviar a inscrição. Tente novamente em instantes.",
+      error: "Não foi possível enviar a inscrição. Tente novamente em instantes.",
     });
   }
 });

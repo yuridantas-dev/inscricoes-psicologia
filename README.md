@@ -23,7 +23,9 @@ npm run test:email
 
 5. Reinicie o site: `npm run dev` e envie uma inscrição pelo formulário.
 
-Os e-mails chegam em `marcos3716625@faculdadecci.com.br` (confira também **Spam**).
+Os e-mails chegam no `ADMIN_EMAIL` configurado (confira também **Spam**).
+
+**Importante (Resend grátis):** a API Key só envia para o **mesmo e-mail da conta Resend** até você verificar o domínio `faculdadecci.com.br` em [resend.com/domains](https://resend.com/domains). Para notificar `ana3718825@faculdadecci.com.br`, crie a conta Resend com o e-mail da Ana e use a API Key dela no Render.
 
 ## Alternativa: Gmail com senha de app
 

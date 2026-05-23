@@ -1,5 +1,6 @@
+export const COURSE_OTHER = "Outro";
+
 export const CCI_COURSES = [
-  "Administração",
   "Análise e Desenvolvimento de Sistemas",
   "Biomedicina",
   "Direito",
@@ -7,6 +8,7 @@ export const CCI_COURSES = [
   "Fonoaudiologia",
   "Pedagogia",
   "Psicologia",
+  COURSE_OTHER,
 ] as const;
 
 export const SEMESTERS = [
