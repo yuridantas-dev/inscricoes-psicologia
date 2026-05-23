@@ -15,6 +15,12 @@ export default function App() {
       <div className="max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-10 flex-grow">
 
         <header className="mb-8 md:mb-12 text-center max-w-2xl mx-auto" id="main-header">
+          <img
+            src="/logo-faculdade-cci.png"
+            alt="Logotipo Faculdade CCI"
+            className="h-16 sm:h-20 w-auto mx-auto mb-5 object-contain"
+          />
+
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-brand-50 border border-brand-100/80 rounded-full text-brand-700 text-xs font-semibold mb-3 tracking-wide uppercase">
             <HeartPulse className="w-3.5 h-3.5" />
             <span>Turma de Psicologia & Saúde</span>
@@ -104,7 +110,13 @@ export default function App() {
       </div>
 
       <footer className="bg-white border-t border-slate-100 py-6 px-4 text-center text-xs text-slate-400" id="main-footer">
-        <p>© {new Date().getFullYear()} Curso de Psicologia. Todos os direitos reservados.</p>
+        <img
+          src="/logo-faculdade-cci.png"
+          alt=""
+          aria-hidden="true"
+          className="h-8 w-auto mx-auto mb-2 opacity-70 object-contain"
+        />
+        <p>© {new Date().getFullYear()} Faculdade CCI — Turma de Psicologia. Todos os direitos reservados.</p>
       </footer>
 
     </div>
