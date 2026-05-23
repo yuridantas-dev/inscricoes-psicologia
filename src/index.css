@@ -21,6 +21,13 @@ body {
   color: #1e293b;
 }
 
+/* Evita zoom automático ao focar campos no iPhone (fonte mínima 16px) */
+input,
+select,
+textarea {
+  font-size: 16px;
+}
+
 h1, h2, h3, h4, .font-display {
   font-family: var(--font-display);
 }

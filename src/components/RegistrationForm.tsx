@@ -241,7 +241,7 @@ export default function RegistrationForm() {
               placeholder="Ex: Amanda Silva Ramos"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:bg-white focus:border-brand-500 focus:outline-hidden transition-all text-sm shadow-2xs"
+              className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:bg-white focus:border-brand-500 focus:outline-hidden transition-all text-base shadow-2xs"
             />
           </div>
         </div>
@@ -261,7 +261,7 @@ export default function RegistrationForm() {
               placeholder="Ex: amanda@exemplo.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:bg-white focus:border-brand-500 focus:outline-hidden transition-all text-sm shadow-2xs"
+              className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:bg-white focus:border-brand-500 focus:outline-hidden transition-all text-base shadow-2xs"
             />
           </div>
         </div>
@@ -282,7 +282,7 @@ export default function RegistrationForm() {
                 placeholder="(00) 00000-0000"
                 value={phone}
                 onChange={handlePhoneChange}
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:bg-white focus:border-brand-500 focus:outline-hidden transition-all text-sm shadow-2xs"
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:bg-white focus:border-brand-500 focus:outline-hidden transition-all text-base shadow-2xs"
               />
             </div>
           </div>
@@ -303,7 +303,7 @@ export default function RegistrationForm() {
                 placeholder="Ex: RA-102938 ou CPF"
                 value={identifier}
                 onChange={handleIdentifierChange}
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:bg-white focus:border-brand-500 focus:outline-hidden transition-all text-sm shadow-2xs"
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:bg-white focus:border-brand-500 focus:outline-hidden transition-all text-base shadow-2xs"
               />
             </div>
           </div>
@@ -318,7 +318,7 @@ export default function RegistrationForm() {
             <select
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:bg-white focus:border-brand-500 focus:outline-hidden transition-all text-sm shadow-2xs cursor-pointer"
+              className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:bg-white focus:border-brand-500 focus:outline-hidden transition-all text-base shadow-2xs cursor-pointer"
             >
               {Object.entries(ROLE_LABELS).map(([key, value]) => (
                 <option key={key} value={key}>
@@ -336,7 +336,7 @@ export default function RegistrationForm() {
             <select
               value={courseTopic}
               onChange={(e) => setCourseTopic(e.target.value)}
-              className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:bg-white focus:border-brand-500 focus:outline-hidden transition-all text-sm shadow-2xs cursor-pointer"
+              className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:bg-white focus:border-brand-500 focus:outline-hidden transition-all text-base shadow-2xs cursor-pointer"
             >
               {PSYCHOLOGY_SUBFIELDS.map((field) => (
                 <option key={field} value={field}>
