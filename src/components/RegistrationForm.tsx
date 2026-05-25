@@ -113,7 +113,8 @@ export default function RegistrationForm() {
       }
 
       setSuccessMsg(
-        data.message || 'Inscrição enviada! A comissão receberá seus dados por e-mail.'
+        data.message ||
+          'Inscrição enviada! A organização foi notificada e você receberá um e-mail de confirmação em breve.'
       );
 
       setFullName('');
@@ -179,7 +180,8 @@ export default function RegistrationForm() {
 
               <p className="text-sm text-slate-600 leading-relaxed">{successMsg}</p>
               <p className="text-sm text-emerald-700 mt-2">
-                A organização foi notificada por e-mail. Você pode fechar esta página.
+                Confira também sua caixa de entrada (e spam) para ver a notificação enviada ao seu e-mail
+                institucional.
               </p>
 
               <button

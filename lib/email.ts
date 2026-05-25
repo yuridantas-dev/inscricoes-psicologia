@@ -50,11 +50,47 @@ function buildText(data: RegistrationData): string {
   ].join("\n");
 }
 
-async function sendViaResend(
-  adminEmail: string,
-  data: RegistrationData,
-  subject: string
-): Promise<void> {
+function buildStudentNotificationHtml(data: RegistrationData): string {
+  const firstName = data.fullName.trim().split(/\s+/)[0];
+  return `
+    <h2>Inscrição recebida — Faculdade CCI</h2>
+    <p style="font-family:sans-serif;font-size:14px;line-height:1.6">
+      Olá, ${escapeHtml(firstName)}!
+    </p>
+    <p style="font-family:sans-serif;font-size:14px;line-height:1.6">
+      Sua inscrição foi registrada com sucesso. Os dados foram enviados para a organização do evento.
+    </p>
+    <table style="border-collapse:collapse;font-family:sans-serif;font-size:14px;margin-top:12px">
+      <tr><td style="padding:6px 12px 6px 0;font-weight:bold">Curso</td><td>${escapeHtml(data.course)}</td></tr>
+      <tr><td style="padding:6px 12px 6px 0;font-weight:bold">Semestre</td><td>${escapeHtml(data.semester)}</td></tr>
+    </table>
+    <p style="color:#64748b;font-size:12px;margin-top:16px;font-family:sans-serif">
+      Enviado em ${new Date().toLocaleString("pt-BR")}
+    </p>
+  `;
+}
+
+function buildStudentNotificationText(data: RegistrationData): string {
+  const firstName = data.fullName.trim().split(/\s+/)[0];
+  return [
+    `Olá, ${firstName}!`,
+    "",
+    "Sua inscrição foi registrada com sucesso. Os dados foram enviados para a organização do evento.",
+    "",
+    `Curso: ${data.course}`,
+    `Semestre: ${data.semester}`,
+  ].join("\n");
+}
+
+interface OutgoingEmail {
+  to: string;
+  subject: string;
+  html: string;
+  text: string;
+  replyTo?: string;
+}
+
+async function sendViaResend(email: OutgoingEmail): Promise<void> {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) throw new Error("RESEND_API_KEY não configurada");
 
@@ -64,11 +100,11 @@ async function sendViaResend(
 
   const { error } = await resend.emails.send({
     from,
-    to: [adminEmail],
-    replyTo: data.institutionalEmail,
-    subject,
-    html: buildHtml(data),
-    text: buildText(data),
+    to: [email.to],
+    replyTo: email.replyTo,
+    subject: email.subject,
+    html: email.html,
+    text: email.text,
   });
 
   if (error) {
@@ -76,11 +112,7 @@ async function sendViaResend(
   }
 }
 
-async function sendViaSmtp(
-  adminEmail: string,
-  data: RegistrationData,
-  subject: string
-): Promise<void> {
+async function sendViaSmtp(email: OutgoingEmail): Promise<void> {
   const host = process.env.SMTP_HOST;
   const user = process.env.SMTP_USER;
   const pass = process.env.SMTP_PASS;
@@ -100,12 +132,38 @@ async function sendViaSmtp(
 
   await transporter.sendMail({
     from: `"Inscrições CCI" <${from}>`,
-    to: adminEmail,
-    replyTo: data.institutionalEmail,
-    subject,
-    html: buildHtml(data),
-    text: buildText(data),
+    to: email.to,
+    replyTo: email.replyTo,
+    subject: email.subject,
+    html: email.html,
+    text: email.text,
   });
+}
+
+async function sendEmail(email: OutgoingEmail): Promise<void> {
+  const provider = getEmailProvider();
+
+  if (provider === "resend") {
+    await sendViaResend(email);
+    return;
+  }
+
+  if (provider === "smtp") {
+    await sendViaSmtp(email);
+    return;
+  }
+
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(
+      "Configure RESEND_API_KEY (recomendado) ou SMTP no servidor para enviar e-mails."
+    );
+  }
+
+  console.log("\n--- E-mail (modo dev — não enviado) ---");
+  console.log(`Para: ${email.to}`);
+  console.log(`Assunto: ${email.subject}`);
+  console.log(email.text);
+  console.log("---\n");
 }
 
 export function getEmailProvider(): "resend" | "smtp" | "dev" {
@@ -122,28 +180,18 @@ export async function sendRegistrationEmail(data: RegistrationData): Promise<voi
     throw new Error("ADMIN_EMAIL não está configurado no servidor.");
   }
 
-  const subject = `Nova inscrição: ${data.fullName} — ${data.course}`;
-  const provider = getEmailProvider();
+  await sendEmail({
+    to: adminEmail,
+    subject: `Nova inscrição: ${data.fullName} — ${data.course}`,
+    html: buildHtml(data),
+    text: buildText(data),
+    replyTo: data.institutionalEmail,
+  });
 
-  if (provider === "resend") {
-    await sendViaResend(adminEmail, data, subject);
-    return;
-  }
-
-  if (provider === "smtp") {
-    await sendViaSmtp(adminEmail, data, subject);
-    return;
-  }
-
-  if (process.env.NODE_ENV === "production") {
-    throw new Error(
-      "Configure RESEND_API_KEY (recomendado) ou SMTP no servidor para enviar e-mails."
-    );
-  }
-
-  console.log("\n--- Nova inscrição (modo dev — e-mail não enviado) ---");
-  console.log(`Configure RESEND_API_KEY no .env para enviar para ${adminEmail}`);
-  console.log(`Assunto: ${subject}`);
-  console.log(JSON.stringify(data, null, 2));
-  console.log("---\n");
+  await sendEmail({
+    to: data.institutionalEmail,
+    subject: "Inscrição recebida — Faculdade CCI",
+    html: buildStudentNotificationHtml(data),
+    text: buildStudentNotificationText(data),
+  });
 }

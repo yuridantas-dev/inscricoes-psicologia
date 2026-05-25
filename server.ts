@@ -77,7 +77,8 @@ app.post("/api/inscricao", async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: "Inscrição enviada! A comissão receberá seus dados por e-mail.",
+      message:
+        "Inscrição enviada! A organização foi notificada e você receberá um e-mail de confirmação em breve.",
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
